@@ -1,0 +1,1 @@
+{"ast":null,"code":"export default function* rootSaga() {\n  yield;\n}","map":{"version":3,"names":["rootSaga"],"sources":["D:/source/infearn/node_bird/front/sagas/index.js"],"sourcesContent":["export default function* rootSaga() {\n  yield \n}\n"],"mappings":"AAAA,eAAe,UAAUA,QAAQ,GAAG;EAClC,KAAK;AACP"},"metadata":{},"sourceType":"module"}

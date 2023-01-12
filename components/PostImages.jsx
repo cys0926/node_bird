@@ -20,7 +20,6 @@ const PostImages = ({ images }) => {
         <img
           role="presentation" // 시각장애인이 img 태그를 button 으로 인식하는걸 방지
           src={images[0].src}
-          style={{ maxHeight: "200px" }}
           alt={images[0].src}
           onClick={onZoom}
         />

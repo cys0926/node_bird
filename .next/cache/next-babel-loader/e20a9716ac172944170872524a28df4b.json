@@ -1,1 +1,0 @@
-{"ast":null,"code":"export default function* () {}","map":{"version":3,"names":[],"sources":["D:/source/infearn/node_bird/front/sagas/index.js"],"sourcesContent":["export default function* () {}\n"],"mappings":"AAAA,eAAe,aAAa,CAAC"},"metadata":{},"sourceType":"module"}

@@ -1,12 +1,4 @@
-import {
-  all,
-  fork,
-  delay,
-  put,
-  takeLatest,
-  throttle,
-  call,
-} from "redux-saga/effects";
+import { all, fork, put, takeLatest, throttle, call } from "redux-saga/effects";
 import axios from "axios";
 import {
   ADD_COMMENT_FAILURE,
@@ -24,9 +16,15 @@ import {
   REMOVE_POST_FAILURE,
   REMOVE_POST_REQUEST,
   REMOVE_POST_SUCCESS,
+  RETWEET_FAILURE,
+  RETWEET_REQUEST,
+  RETWEET_SUCCESS,
   UNLIKE_POST_FAILURE,
   UNLIKE_POST_REQUEST,
   UNLIKE_POST_SUCCESS,
+  UPLOAD_IMAGES_FAILURE,
+  UPLOAD_IMAGES_REQUEST,
+  UPLOAD_IMAGES_SUCCESS,
 } from "../reducers/post";
 import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from "../reducers/user";
 
@@ -56,13 +54,13 @@ function* unlikePost(action) {
   }
 }
 
-function loadPostsAPI(data) {
-  return axios.get("/posts", data);
+function loadPostsAPI(lastId) {
+  return axios.get(`/posts?lastId=${lastId || 0}`);
 }
 
 function* loadPosts(action) {
   try {
-    const result = yield call(loadPostsAPI, action.data); // call 은 동기, fork 는 비동기
+    const result = yield call(loadPostsAPI, action.lastId); // call 은 동기, fork 는 비동기
     yield put({ type: LOAD_POSTS_SUCCESS, data: result.data });
   } catch (err) {
     yield put({ type: LOAD_POSTS_FAILURE, error: err.response.data });
@@ -70,7 +68,7 @@ function* loadPosts(action) {
 }
 
 function addPostAPI(data) {
-  return axios.post("/post", { content: data });
+  return axios.post("/post", data);
 }
 
 function* addPost(action) {
@@ -114,6 +112,41 @@ function* addComment(action) {
   }
 }
 
+function uploadImagesAPI(data) {
+  return axios.post("/post/images", data);
+}
+
+function* uploadImages(action) {
+  try {
+    const result = yield call(uploadImagesAPI, action.data); // call 은 동기, fork 는 비동기
+    yield put({ type: UPLOAD_IMAGES_SUCCESS, data: result.data });
+  } catch (err) {
+    console.error(err);
+    yield put({ type: UPLOAD_IMAGES_FAILURE, error: err.response.data });
+  }
+}
+
+function retweetAPI(data) {
+  return axios.post(`/post/${data}/retweet`);
+}
+
+function* retweet(action) {
+  try {
+    const result = yield call(retweetAPI, action.data); // call 은 동기, fork 는 비동기
+    yield put({ type: RETWEET_SUCCESS, data: result.data });
+  } catch (err) {
+    console.error(err);
+    yield put({ type: RETWEET_FAILURE, error: err.response.data });
+  }
+}
+
+function* watchRetweet() {
+  yield takeLatest(RETWEET_REQUEST, retweet);
+}
+function* watchUploadImages() {
+  yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImages);
+}
+
 function* watchUnlikePost() {
   yield takeLatest(UNLIKE_POST_REQUEST, unlikePost);
 }
@@ -140,6 +173,8 @@ function* watchAddComment() {
 
 export default function* postSaga() {
   yield all([
+    fork(watchRetweet),
+    fork(watchUploadImages),
     fork(watchLikePost),
     fork(watchUnlikePost),
     fork(watchLoadPosts),
